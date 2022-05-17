@@ -10,9 +10,7 @@ enum class CheckGateScreensScreens {
 
 enum class IconType {
     HOME,
-    TRANSACTIONS,
-    PRODUCT,
-    ACCOUNT
+    Cart
 }
 
 sealed class BottomBarScreen(
@@ -21,7 +19,5 @@ sealed class BottomBarScreen(
     val icon: IconType
 ) {
     object Home : BottomBarScreen("Home", "Home", IconType.HOME)
-    object Transactions : BottomBarScreen("Transactions", "Transactions", IconType.TRANSACTIONS)
-    object Product : BottomBarScreen("Product", "Product", IconType.PRODUCT)
-    object Account : BottomBarScreen("Account", "Account", IconType.ACCOUNT)
+    object Cart : BottomBarScreen("Cart", "Cart", IconType.Cart)
 }

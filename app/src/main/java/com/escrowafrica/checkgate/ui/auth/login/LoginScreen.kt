@@ -121,7 +121,7 @@ fun LoginScreen(navigate: () -> Unit){
                         if (Patterns.EMAIL_ADDRESS.matcher(emailText)
                                 .matches() && passwordText.length >= 6
                         ) {
-                            //navigate()
+                            navigate()
                             /*loginViewModel.login(
                                 loginDetails =
                                 LoginDetails(

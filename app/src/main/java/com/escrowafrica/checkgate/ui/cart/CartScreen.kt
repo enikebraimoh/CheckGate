@@ -1,13 +1,10 @@
-package com.escrowafrica.checkgate.ui.dashboard
+package com.escrowafrica.checkgate.ui.cart
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 
-
 @Composable
-fun DashboardScreen(padding: PaddingValues) {
-
-
+fun CartScreen(padding: PaddingValues) {
 
 
 }
