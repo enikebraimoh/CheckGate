@@ -59,6 +59,11 @@ fun DefaultButton(
     borderColor: Color = MaterialTheme.colors.primary,
     color: Color = MaterialTheme.colors.primary,
     buttonText: String,
+    elevation : ButtonElevation = ButtonDefaults.elevation(
+        defaultElevation = 0.dp,
+        pressedElevation = if (border != 0.dp) 0.dp else 8.dp,
+        disabledElevation = 0.dp
+    ),
     textSize: TextUnit = MaterialTheme.typography.button.fontSize,
     modifier: Modifier = Modifier
         .fillMaxWidth()
@@ -70,11 +75,7 @@ fun DefaultButton(
     Button(
         modifier = modifier,
         enabled = isEnabled,
-        elevation = ButtonDefaults.elevation(
-            defaultElevation = 0.dp,
-            pressedElevation = if (border != 0.dp) 0.dp else 8.dp,
-            disabledElevation = 0.dp
-        ),
+        elevation = elevation,
         border = if (type == ButtonType.BORDER) BorderStroke(border, borderColor) else null,
         colors = ButtonDefaults.buttonColors(
             backgroundColor = color,
