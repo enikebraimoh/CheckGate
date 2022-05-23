@@ -9,6 +9,9 @@
         <entry key="../../../../layout/compose-model-1652828657406.xml" value="0.2638888888888889" />
         <entry key="../../../../layout/compose-model-1652831635303.xml" value="0.1" />
         <entry key="../../../../layout/compose-model-1652832488260.xml" value="0.25" />
+        <entry key="../../../../layout/compose-model-1653334683269.xml" value="0.27280405405405406" />
+        <entry key="../../../../layout/compose-model-1653334704223.xml" value="0.27280405405405406" />
+        <entry key="../../../../layout/compose-model-1653343141793.xml" value="0.2212962962962963" />
         <entry key="app/src/main/res/drawable/ic_add.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_arrow_down.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_arrow_right.xml" value="0.1" />
@@ -20,7 +23,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

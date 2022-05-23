@@ -1,6 +1,7 @@
 package com.escrowafrica.checkgate.ui.auth.login
 
 import android.util.Patterns
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,10 +21,12 @@ import androidx.compose.ui.text.withStyle
 import com.escrowafrica.checkgate.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.escrowafrica.checkgate.ui.DefaultButton
-import com.escrowafrica.checkgate.ui.DefaultTextField
-import com.escrowafrica.checkgate.ui.ShowError
-import com.escrowafrica.checkgate.ui.TextInputType
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.escrowafrica.checkgate.StateMachine
+import com.escrowafrica.checkgate.ViewModel
+import com.escrowafrica.checkgate.ui.*
+import com.escrowafrica.checkgate.ui.models.LoginRequest
+import com.escrowafrica.checkgate.ui.models.LoginResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -31,11 +34,13 @@ import kotlinx.coroutines.launch
 fun LoginScreen(navigate: () -> Unit){
 
     val coroutineScope = rememberCoroutineScope()
-   // val loginViewModel: LoginViewModel = hiltViewModel()
-    //val myState = loginViewModel.state.collectAsState(initial = StateMachine.Ideal)
+
+     val loginViewModel: ViewModel = hiltViewModel()
+     val myState = loginViewModel.loginState.collectAsState(initial = StateMachine.Ideal)
 
     var ShowError by remember { mutableStateOf(false) }
     var ErrorMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false)}
 
     val (emailText, emailSetText) = remember { mutableStateOf("richardbraimoh@gmail.com") }
     val (passwordText, passwordSetText) = remember { mutableStateOf("000000") }
@@ -48,6 +53,41 @@ fun LoginScreen(navigate: () -> Unit){
         }
         delay(1000)
         ShowError = false
+    }
+
+
+    LaunchedEffect(myState.value) {
+        when (myState.value) {
+            is StateMachine.Success<LoginResponse> -> {
+                isLoading = false
+                navigate()
+            }
+            is StateMachine.Error -> {
+                isLoading = false
+                ErrorMessage =
+                    (myState.value as StateMachine.Error<LoginResponse>).error.message.toString()
+                showErrorMessage()
+            }
+            is StateMachine.GenericError -> {
+                isLoading = false
+                ErrorMessage =
+                    (myState.value as StateMachine.GenericError).error?.message.toString()
+                showErrorMessage()
+            }
+
+            is StateMachine.Loading -> {
+                isLoading = true
+            }
+            is StateMachine.TimeOut -> {
+                isLoading = false
+                ErrorMessage =
+                    (myState.value as StateMachine.TimeOut<LoginResponse>).error.message.toString()
+                showErrorMessage()
+            }
+            else -> {
+                isLoading = false
+            }
+        }
     }
 
     Column(
@@ -112,30 +152,34 @@ fun LoginScreen(navigate: () -> Unit){
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            DefaultButton(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                buttonText = "LOG IN",
-                buttonClicked = {
-                    coroutineScope.launch {
-                        if (Patterns.EMAIL_ADDRESS.matcher(emailText)
-                                .matches() && passwordText.length >= 6
-                        ) {
-                            navigate()
-                            /*loginViewModel.login(
-                                loginDetails =
-                                LoginDetails(
-                                    emailText,
-                                    passwordText
+            AnimatedVisibility(visible = isLoading) {
+                LoadingAnimation(circleSize = 10.dp)
+            }
+            AnimatedVisibility(visible = !isLoading) {
+                DefaultButton(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    buttonText = "LOG IN",
+                    buttonClicked = {
+                        coroutineScope.launch {
+                            if (Patterns.EMAIL_ADDRESS.matcher(emailText)
+                                    .matches() && passwordText.length >= 6
+                            ) {
+                                loginViewModel.login(
+                                    loginDetails =
+                                    LoginRequest(
+                                        emailText,
+                                        passwordText
+                                    )
                                 )
-                            )*/
-                        } else {
-                            ErrorMessage = "Invalid Email or Password"
-                            showErrorMessage()
+                            } else {
+                                ErrorMessage = "Invalid Email or Password"
+                                showErrorMessage()
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
 
             Spacer(modifier = Modifier.height(30.dp))
 
