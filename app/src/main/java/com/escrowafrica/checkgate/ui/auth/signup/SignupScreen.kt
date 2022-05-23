@@ -1,14 +1,13 @@
 package com.escrowafrica.checkgate.ui.auth.signup
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,20 +20,76 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.escrowafrica.checkgate.ui.DefaultButton
-import com.escrowafrica.checkgate.ui.DefaultTextField
-import com.escrowafrica.checkgate.ui.TextInputType
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.escrowafrica.checkgate.StateMachine
+import com.escrowafrica.checkgate.ViewModel
+import com.escrowafrica.checkgate.ui.*
+import com.escrowafrica.checkgate.ui.models.LoginResponse
+import com.escrowafrica.checkgate.ui.models.SignUpRequest
+import com.escrowafrica.checkgate.ui.models.SignUpResponse
+import kotlinx.coroutines.delay
 
 @Composable
-fun SignupScreen(
-    continueButtonClicked: () -> Unit){
+fun SignupScreen(navigate: () -> Unit){
 
-    val (nameText, nameSetText) = remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+
+    val viewModel: ViewModel = hiltViewModel()
+    val myState = viewModel.signUpState.collectAsState(initial = StateMachine.Ideal)
+
+    var ShowError by remember { mutableStateOf(false) }
+    var ErrorMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+
+    val (lastNameText, lastNameSetText) = remember { mutableStateOf("") }
+    val (firstNameText, firstNameSetText) = remember { mutableStateOf("") }
     val (emailText, emailSetText) = remember { mutableStateOf("") }
-    val (phoneText, phoneSetText) = remember { mutableStateOf("") }
     val (passwordText, passwordSetText) = remember { mutableStateOf("") }
-    val (confirmPassswordText, confirmPasswordSetText) = remember { mutableStateOf("") }
+    val (confirmPasswordText, confirmPasswordSetText) = remember { mutableStateOf("") }
 
+    suspend fun showErrorMessage() {
+        if (!ShowError) {
+            ShowError = true
+            delay(1000L)
+            ShowError = false
+        }
+        delay(1000)
+        ShowError = false
+    }
+
+    LaunchedEffect(myState.value) {
+        when (myState.value) {
+            is StateMachine.Success<SignUpResponse> -> {
+                isLoading = false
+                navigate()
+            }
+            is StateMachine.Error -> {
+                isLoading = false
+                ErrorMessage =
+                    (myState.value as StateMachine.Error<SignUpResponse>).error.message.toString()
+                showErrorMessage()
+            }
+            is StateMachine.GenericError -> {
+                isLoading = false
+                ErrorMessage =
+                    (myState.value as StateMachine.GenericError).error?.message.toString()
+                showErrorMessage()
+            }
+
+            is StateMachine.Loading -> {
+                isLoading = true
+            }
+            is StateMachine.TimeOut -> {
+                isLoading = false
+                ErrorMessage =
+                    (myState.value as StateMachine.TimeOut<SignUpResponse>).error.message.toString()
+                showErrorMessage()
+            }
+            else -> {
+                isLoading = false
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -80,23 +135,22 @@ fun SignupScreen(
 
             Spacer(modifier = Modifier.height(40.dp))
             DefaultTextField(
-                label = "Your Name",
+                label = "Your First Name",
                 placeHolder = "Your Name. e.g FirstName",
-                text = nameText,
-                textChanged = { nameSetText(it) })
+                text = firstNameText,
+                textChanged = firstNameSetText)
+            Spacer(modifier = Modifier.height(15.dp))
+            DefaultTextField(
+                label = "Your Last Name",
+                placeHolder = "Your Name. e.g LastName",
+                text = lastNameText,
+                textChanged = lastNameSetText)
             Spacer(modifier = Modifier.height(15.dp))
             DefaultTextField(
                 label = "Your Email",
                 placeHolder = "Your Email. e.g holder@gmail.com",
                 text = emailText,
                 textChanged = { emailSetText(it) })
-            Spacer(modifier = Modifier.height(15.dp))
-            DefaultTextField(
-                label = "Phone number",
-                placeHolder = "Phone number. e.g 08140252210",
-                text = phoneText,
-                textChanged = { phoneSetText(it) })
-
             Spacer(modifier = Modifier.height(15.dp))
             DefaultTextField(
                 type = TextInputType.PASSWORD,
@@ -110,16 +164,31 @@ fun SignupScreen(
                 type = TextInputType.PASSWORD,
                 label = "Confirm Password",
                 placeHolder = "Confirm Password",
-                text = confirmPassswordText,
+                text = confirmPasswordText,
                 textChanged = { confirmPasswordSetText(it) })
             Spacer(modifier = Modifier.height(40.dp))
-            DefaultButton(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                buttonText = "Continue",
-                buttonClicked = {
-                    continueButtonClicked()
-                })
+
+            AnimatedVisibility(visible = isLoading) {
+                LoadingAnimation(circleSize = 10.dp)
+            }
+            AnimatedVisibility(visible = !isLoading) {
+                DefaultButton(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    buttonText = "Continue",
+                    buttonClicked = {
+                        viewModel.signUp(
+                            signUpDetails = SignUpRequest(
+                                confirmPassword = confirmPasswordText,
+                                email = emailText,
+                                first_name = firstNameText,
+                                last_name = lastNameText,
+                                password = passwordText
+                            )
+                        )
+                    })
+
+            }
 
             Spacer(modifier = Modifier.height(30.dp))
             Text(
@@ -146,5 +215,6 @@ fun SignupScreen(
         }
     }
 
+    ShowError(shown = ShowError, message = ErrorMessage)
 
 }
