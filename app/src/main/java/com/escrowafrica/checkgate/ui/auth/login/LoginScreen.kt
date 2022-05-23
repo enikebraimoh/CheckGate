@@ -40,7 +40,7 @@ fun LoginScreen(navigate: () -> Unit){
 
     var ShowError by remember { mutableStateOf(false) }
     var ErrorMessage by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false)}
+    var isLoading by remember { mutableStateOf(false) }
 
     val (emailText, emailSetText) = remember { mutableStateOf("richardbraimoh@gmail.com") }
     val (passwordText, passwordSetText) = remember { mutableStateOf("000000") }

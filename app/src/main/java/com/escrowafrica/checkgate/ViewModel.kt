@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.escrowafrica.checkgate.ui.models.LoginRequest
 import com.escrowafrica.checkgate.ui.models.LoginResponse
+import com.escrowafrica.checkgate.ui.models.SignUpRequest
+import com.escrowafrica.checkgate.ui.models.SignUpResponse
 import com.escrowafrica.checkgate.ui.network.SessionManager
 import com.escrowafrica.checkgate.ui.util.App
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +25,9 @@ constructor(val repo: Repository) : ViewModel() {
     private var _loginState = MutableSharedFlow<StateMachine<LoginResponse>>()
     val loginState: MutableSharedFlow<StateMachine<LoginResponse>> = _loginState
 
+    private var _signUpState = MutableSharedFlow<StateMachine<SignUpResponse>>()
+    val signUpState: MutableSharedFlow<StateMachine<SignUpResponse>> = _signUpState
+
     fun login(loginDetails: LoginRequest) {
         viewModelScope.launch {
             repo.login(loginDetails).collect {
@@ -36,6 +41,14 @@ constructor(val repo: Repository) : ViewModel() {
 
                 Log.d("",it.toString())
                 _loginState.emit(it)
+            }
+        }
+    }
+
+    fun signUp(signUpDetails: SignUpRequest) {
+        viewModelScope.launch {
+            repo.signUp(signUpDetails).collect {
+                _signUpState.emit(it)
             }
         }
     }

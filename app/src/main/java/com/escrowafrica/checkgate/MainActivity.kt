@@ -9,6 +9,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import com.escrowafrica.checkgate.ui.auth.login.LoginScreen
 import com.escrowafrica.checkgate.ui.welcome.WelcomeScreen
 import com.escrowafrica.checkgate.ui.auth.signup.SignupScreen
@@ -22,8 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
         setContent {
             CheckGateTheme {
                 // A surface container using the 'background' color from the theme
@@ -36,8 +35,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-
     }
 }
 
@@ -117,8 +114,8 @@ fun NavGraph(
             }
         ) {
             SignupScreen(
-                continueButtonClicked = {
-                    navController.navigate(CheckGateScreensScreens.DashboardScreen.name)
+                navigate = {
+                    navController.navigate(CheckGateScreensScreens.LoginScreen.name)
                 }
             )
         }
