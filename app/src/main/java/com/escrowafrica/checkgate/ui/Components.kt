@@ -52,6 +52,27 @@ fun EmptyComposable() {
 }
 
 @Composable
+fun EmptyTransactionState() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
+    ) {
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            textAlign = TextAlign.Center,
+            text = "You have no Baskets yet",
+            style = MaterialTheme.typography.subtitle1.copy(
+                fontSize = 20.sp,
+                color = Color(0xFF8897A0)
+            )
+        )
+    }
+}
+
+
+@Composable
 fun DefaultButton(
     border: Dp = 0.dp,
     type: ButtonType = ButtonType.NORMAL,

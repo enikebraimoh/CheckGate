@@ -1,5 +1,7 @@
 package com.escrowafrica.checkgate.ui.cart
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -48,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.escrowafrica.checkgate.R
 import com.escrowafrica.checkgate.StateMachine
@@ -133,6 +136,7 @@ fun CartScreen(padding: PaddingValues) {
 
 @Composable
 fun TransactionItem(item: Basket) {
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -244,7 +248,8 @@ fun TransactionItem(item: Basket) {
                 modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
                 buttonText = "Open Link",
                 buttonClicked = {
-
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(item.url))
+                    startActivity(context,browserIntent,null)
                 }
             )
         }
