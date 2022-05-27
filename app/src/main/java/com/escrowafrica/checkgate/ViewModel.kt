@@ -1,8 +1,12 @@
 package com.escrowafrica.checkgate
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.escrowafrica.checkgate.ui.models.Basket
 import com.escrowafrica.checkgate.ui.models.LoginRequest
 import com.escrowafrica.checkgate.ui.models.LoginResponse
 import com.escrowafrica.checkgate.ui.models.SignUpRequest
@@ -28,6 +32,15 @@ constructor(val repo: Repository) : ViewModel() {
     private var _signUpState = MutableSharedFlow<StateMachine<SignUpResponse>>()
     val signUpState: MutableSharedFlow<StateMachine<SignUpResponse>> = _signUpState
 
+    private val _baskets : MutableState<StateMachine<List<Basket>>> =
+        mutableStateOf(StateMachine.Ideal)
+    val baskets: State<StateMachine<List<Basket>>> = _baskets
+
+    init {
+        getBaskets()
+    }
+
+
     fun login(loginDetails: LoginRequest) {
         viewModelScope.launch {
             repo.login(loginDetails).collect {
@@ -49,6 +62,14 @@ constructor(val repo: Repository) : ViewModel() {
         viewModelScope.launch {
             repo.signUp(signUpDetails).collect {
                 _signUpState.emit(it)
+            }
+        }
+    }
+
+    fun getBaskets() {
+        viewModelScope.launch {
+            repo.getBaskets().collect {
+                _baskets.value = it
             }
         }
     }

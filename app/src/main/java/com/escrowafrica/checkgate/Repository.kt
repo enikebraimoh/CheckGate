@@ -52,5 +52,24 @@ constructor(private val retrofitApis: CheckGateApis) {
 
     }
 
+    fun getBaskets() = flow {
+        emit(StateMachine.Loading)
+        try {
+            val response = retrofitApis.getBaskets().data.baskets
+            emit(StateMachine.Success(response))
+        } catch (e: Throwable) {
+            when (e) {
+                is IOException -> emit(StateMachine.Error(e))
+                is HttpException -> {
+                    val status = e.code()
+                    val res = convertErrorBody(e)
+                    emit(StateMachine.GenericError(status, res))
+                }
+                is SocketTimeoutException -> emit(StateMachine.TimeOut(e))
+            }
+        }
+
+    }
+
 
 }
