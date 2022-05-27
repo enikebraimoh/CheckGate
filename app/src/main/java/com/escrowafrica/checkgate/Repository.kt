@@ -71,5 +71,24 @@ constructor(private val retrofitApis: CheckGateApis) {
 
     }
 
+    fun getBalance() = flow {
+        emit(StateMachine.Loading)
+        try {
+            val response = retrofitApis.getWallet().data
+            emit(StateMachine.Success(response))
+        } catch (e: Throwable) {
+            when (e) {
+                is IOException -> emit(StateMachine.Error(e))
+                is HttpException -> {
+                    val status = e.code()
+                    val res = convertErrorBody(e)
+                    emit(StateMachine.GenericError(status, res))
+                }
+                is SocketTimeoutException -> emit(StateMachine.TimeOut(e))
+            }
+        }
+
+    }
+
 
 }

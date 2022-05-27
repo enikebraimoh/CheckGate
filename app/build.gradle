@@ -78,6 +78,8 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-moshi:$version_retrofit"
     implementation "com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2"
 
+    //refresh
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.24.9-beta"
 
     //Hilt
     implementation "com.google.dagger:hilt-android:2.36"

@@ -11,6 +11,7 @@ import com.escrowafrica.checkgate.ui.models.LoginRequest
 import com.escrowafrica.checkgate.ui.models.LoginResponse
 import com.escrowafrica.checkgate.ui.models.SignUpRequest
 import com.escrowafrica.checkgate.ui.models.SignUpResponse
+import com.escrowafrica.checkgate.ui.models.WalletResponseData
 import com.escrowafrica.checkgate.ui.network.SessionManager
 import com.escrowafrica.checkgate.ui.util.App
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,8 +37,13 @@ constructor(val repo: Repository) : ViewModel() {
         mutableStateOf(StateMachine.Ideal)
     val baskets: State<StateMachine<List<Basket>>> = _baskets
 
+    private val _wallet : MutableState<StateMachine<WalletResponseData>> =
+        mutableStateOf(StateMachine.Ideal)
+    val wallet: State<StateMachine<WalletResponseData>> = _wallet
+
     init {
         getBaskets()
+        getWallet()
     }
 
 
@@ -70,6 +76,14 @@ constructor(val repo: Repository) : ViewModel() {
         viewModelScope.launch {
             repo.getBaskets().collect {
                 _baskets.value = it
+            }
+        }
+    }
+
+    fun getWallet() {
+        viewModelScope.launch {
+            repo.getBalance().collect {
+                _wallet.value = it
             }
         }
     }

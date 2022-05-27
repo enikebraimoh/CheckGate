@@ -60,6 +60,8 @@ import com.escrowafrica.checkgate.ui.EmptyTransactionState
 import com.escrowafrica.checkgate.ui.dashboard.DashboardScreen
 import com.escrowafrica.checkgate.ui.models.Basket
 import com.escrowafrica.checkgate.ui.theme.CheckGateTheme
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun CartScreen(padding: PaddingValues) {
@@ -71,34 +73,36 @@ fun CartScreen(padding: PaddingValues) {
 
     val listOfTransactions = remember { mutableStateOf(emptyList<Basket>()) }
 
+    val isRefreshing = remember { mutableStateOf(false) }
+
     LaunchedEffect(viewModel.baskets.value) {
         when (viewModel.baskets.value) {
             is StateMachine.Success<List<Basket>> -> {
+                isRefreshing.value = false
                 val data =
                     (viewModel.baskets.value as StateMachine.Success<List<Basket>>).data
                 listOfTransactions.value = data
             }
             is StateMachine.Error -> {
+                isRefreshing.value = false
                 val data =
                     (viewModel.baskets.value as StateMachine.Error<List<Basket>>).error
                 Toast.makeText(context, data.toString(), Toast.LENGTH_SHORT).show()
             }
             is StateMachine.GenericError -> {
-
+                isRefreshing.value = false
             }
             is StateMachine.Loading -> {
-
-                Toast.makeText(context, "loading", Toast.LENGTH_SHORT).show()
+                isRefreshing.value = true
             }
             is StateMachine.TimeOut -> {
-
+                isRefreshing.value = false
             }
             else -> {
-                Toast.makeText(context, "unknown", Toast.LENGTH_SHORT).show()
+
             }
         }
     }
-
 
     Scaffold(
         modifier = Modifier
@@ -122,16 +126,21 @@ fun CartScreen(padding: PaddingValues) {
                         EmptyTransactionState()
                     }
                 }
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(items = listOfTransactions.value) { basket ->
-                        TransactionItem(basket)
+                SwipeRefresh(
+                    state = rememberSwipeRefreshState(isRefreshing = isRefreshing.value),
+                    onRefresh = {
+                        viewModel.getWallet()
+                    }) {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(items = listOfTransactions.value) { basket ->
+                            TransactionItem(basket)
+                        }
                     }
                 }
             }
         }
 
     }
-
 }
 
 @Composable
@@ -245,11 +254,13 @@ fun TransactionItem(item: Basket) {
 
             DefaultButton(
                 innerPadding = PaddingValues(10.dp),
-                modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
                 buttonText = "Open Link",
                 buttonClicked = {
                     val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(item.url))
-                    startActivity(context,browserIntent,null)
+                    startActivity(context, browserIntent, null)
                 }
             )
         }
