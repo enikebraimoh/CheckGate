@@ -6,6 +6,7 @@ enum class CheckGateScreensScreens {
     SignUpScreen,
     LoginScreen,
     DashboardScreen,
+    WebViewScreen,
 }
 
 enum class IconType {

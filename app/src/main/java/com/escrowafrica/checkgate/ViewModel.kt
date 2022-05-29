@@ -7,6 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.escrowafrica.checkgate.ui.models.Basket
+import com.escrowafrica.checkgate.ui.models.DepositData
+import com.escrowafrica.checkgate.ui.models.DepositResponse
 import com.escrowafrica.checkgate.ui.models.LoginRequest
 import com.escrowafrica.checkgate.ui.models.LoginResponse
 import com.escrowafrica.checkgate.ui.models.SignUpRequest
@@ -41,10 +43,14 @@ constructor(val repo: Repository) : ViewModel() {
         mutableStateOf(StateMachine.Ideal)
     val wallet: State<StateMachine<WalletResponseData>> = _wallet
 
+    private var _depositState = MutableSharedFlow<StateMachine<DepositResponse>>()
+    val depositState: MutableSharedFlow<StateMachine<DepositResponse>> = _depositState
+
     init {
         getBaskets()
         getWallet()
     }
+
 
 
     fun login(loginDetails: LoginRequest) {
@@ -68,6 +74,14 @@ constructor(val repo: Repository) : ViewModel() {
         viewModelScope.launch {
             repo.signUp(signUpDetails).collect {
                 _signUpState.emit(it)
+            }
+        }
+    }
+
+    fun deposit(amount: DepositData) {
+        viewModelScope.launch {
+            repo.deposit(amount).collect {
+                _depositState.emit(it)
             }
         }
     }
