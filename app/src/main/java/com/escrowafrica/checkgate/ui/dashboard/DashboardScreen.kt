@@ -57,7 +57,7 @@ fun DashboardScreen(padding: PaddingValues, depositClicked: () -> Unit) {
                 isRefreshing.value = false
                 val data =
                     (viewModel.wallet.value as StateMachine.Success<WalletResponseData>).data
-                balanceSetText("${data.balance + data.received_balance + data.on_hold_balance}")
+                balanceSetText("${data.balance}.00")
             }
             is StateMachine.Error -> {
                 isRefreshing.value = false
