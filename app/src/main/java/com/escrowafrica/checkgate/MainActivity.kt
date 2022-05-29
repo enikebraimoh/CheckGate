@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.escrowafrica.checkgate.ui.auth.login.LoginScreen
 import com.escrowafrica.checkgate.ui.welcome.WelcomeScreen
 import com.escrowafrica.checkgate.ui.auth.signup.SignupScreen
@@ -152,6 +154,20 @@ fun NavGraph(
             CheckGateScreensScreens.DashboardScreen.name
         ) {
             BottomNavView(navController)
+        }
+
+        composable(
+            "${CheckGateScreensScreens.WebViewScreen.name}/{url}",
+            arguments = listOf(
+                navArgument("url") {
+                    type = NavType.StringType
+                })
+        ) { entry ->
+            val url = entry.arguments?.getString("url")
+            WebView(url.toString(),
+                goBack = {
+                navController.popBackStack()
+            })
         }
     }
 }

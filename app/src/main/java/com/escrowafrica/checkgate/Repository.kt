@@ -1,5 +1,6 @@
 package com.escrowafrica.checkgate
 
+import com.escrowafrica.checkgate.ui.models.DepositData
 import com.escrowafrica.checkgate.ui.models.LoginRequest
 import com.escrowafrica.checkgate.ui.models.LoginResponse
 import com.escrowafrica.checkgate.ui.models.SignUpRequest
@@ -75,6 +76,26 @@ constructor(private val retrofitApis: CheckGateApis) {
         emit(StateMachine.Loading)
         try {
             val response = retrofitApis.getWallet().data
+            emit(StateMachine.Success(response))
+        } catch (e: Throwable) {
+            when (e) {
+                is IOException -> emit(StateMachine.Error(e))
+                is HttpException -> {
+                    val status = e.code()
+                    val res = convertErrorBody(e)
+                    emit(StateMachine.GenericError(status, res))
+                }
+                is SocketTimeoutException -> emit(StateMachine.TimeOut(e))
+            }
+        }
+
+    }
+
+
+    fun deposit(amount: DepositData) = flow {
+        emit(StateMachine.Loading)
+        try {
+            val response = retrofitApis.deposit(amount)
             emit(StateMachine.Success(response))
         } catch (e: Throwable) {
             when (e) {

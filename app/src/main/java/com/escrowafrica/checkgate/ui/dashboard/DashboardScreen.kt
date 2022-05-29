@@ -1,7 +1,10 @@
 package com.escrowafrica.checkgate.ui.dashboard
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -19,10 +22,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.escrowafrica.checkgate.StateMachine
 import com.escrowafrica.checkgate.ViewModel
@@ -33,11 +38,10 @@ import com.escrowafrica.checkgate.ui.theme.CheckGateTheme
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.text.DecimalFormat
-
+import kotlinx.coroutines.launch
 
 @Composable
-fun DashboardScreen(padding: PaddingValues) {
-
+fun DashboardScreen(padding: PaddingValues, depositClicked: () -> Unit) {
 
     val viewModel: ViewModel = hiltViewModel()
 
@@ -46,8 +50,6 @@ fun DashboardScreen(padding: PaddingValues) {
     val context = LocalContext.current
 
     var isRefreshing = remember { mutableStateOf(false) }
-
-    //val swipeRefreshState = rememberSwipeRefreshState(isRefreshing.value)
 
     LaunchedEffect(viewModel.wallet.value) {
         when (viewModel.wallet.value) {
@@ -64,10 +66,13 @@ fun DashboardScreen(padding: PaddingValues) {
                 Toast.makeText(context, data.toString(), Toast.LENGTH_SHORT).show()
             }
             is StateMachine.GenericError -> {
+                val data =
+                    (viewModel.wallet.value as StateMachine.GenericError).error?.message.toString()
+                Toast.makeText(context, data, Toast.LENGTH_SHORT).show()
                 isRefreshing.value = false
             }
             is StateMachine.Loading -> {
-                isRefreshing.value = true
+
             }
             is StateMachine.TimeOut -> {
                 isRefreshing.value = false
@@ -77,8 +82,6 @@ fun DashboardScreen(padding: PaddingValues) {
             }
         }
     }
-
-
 
     Scaffold(
         modifier = Modifier
@@ -91,7 +94,8 @@ fun DashboardScreen(padding: PaddingValues) {
         SwipeRefresh(
             state = rememberSwipeRefreshState(isRefreshing.value),
             onRefresh = {
-                viewModel.getBaskets()
+                isRefreshing.value = true
+                viewModel.getWallet()
             }) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -124,7 +128,7 @@ fun DashboardScreen(padding: PaddingValues) {
                         Spacer(modifier = Modifier.height(5.dp))
 
                         Text(
-                            text = "₦ $balanceText",
+                            text = "$ $balanceText",
                             style = MaterialTheme.typography.h3.copy(
                                 fontSize = 28.sp,
                                 color = Color.White
@@ -135,7 +139,6 @@ fun DashboardScreen(padding: PaddingValues) {
 
                         Spacer(modifier = Modifier.height(15.dp))
                     }
-
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -150,7 +153,9 @@ fun DashboardScreen(padding: PaddingValues) {
                             color = MaterialTheme.colors.primary.copy(alpha = 0.3f),
                             modifier = Modifier.fillMaxWidth(),
                             buttonText = "Deposit",
-                            buttonClicked = { },
+                            buttonClicked = {
+                                depositClicked()
+                            },
                             elevation = ButtonDefaults.elevation(
                                 defaultElevation = 0.dp,
                                 pressedElevation = 0.dp,
@@ -169,7 +174,25 @@ fun DashboardScreen(padding: PaddingValues) {
                             buttonClicked = { })
                     }
                 }
-
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(horizontal = 15.dp),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                DefaultButton(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 30.dp),
+                    innerPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                    buttonText = "Start Selling",
+                    buttonClicked = {
+                        val browserIntent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://Checkgate.ml/auth/login")
+                        )
+                        ContextCompat.startActivity(context, browserIntent, null)
+                    }
+                )
             }
         }
     }
@@ -204,7 +227,7 @@ fun DashBoardTopBar() {
 fun DashboardPreview() {
     CheckGateTheme {
         Surface {
-            DashboardScreen(padding = PaddingValues(20.dp))
+            DashboardScreen(padding = PaddingValues(20.dp), {})
         }
     }
 }

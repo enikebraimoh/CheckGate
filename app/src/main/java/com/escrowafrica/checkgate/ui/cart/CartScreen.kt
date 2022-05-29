@@ -93,7 +93,7 @@ fun CartScreen(padding: PaddingValues) {
                 isRefreshing.value = false
             }
             is StateMachine.Loading -> {
-                isRefreshing.value = true
+
             }
             is StateMachine.TimeOut -> {
                 isRefreshing.value = false
@@ -129,7 +129,8 @@ fun CartScreen(padding: PaddingValues) {
                 SwipeRefresh(
                     state = rememberSwipeRefreshState(isRefreshing = isRefreshing.value),
                     onRefresh = {
-                        viewModel.getWallet()
+                        isRefreshing.value = true
+                        viewModel.getBaskets()
                     }) {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(items = listOfTransactions.value) { basket ->
