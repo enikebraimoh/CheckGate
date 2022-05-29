@@ -118,7 +118,7 @@ fun SignupScreen(navigate: () -> Unit){
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Make sales, receive payments and\ndo more on the escrow app",
+            text = "Make sales and\ndo more on the CheckGate app",
             style = MaterialTheme.typography.h3.copy(
                 fontSize = 14.sp,
                 color = Color(
