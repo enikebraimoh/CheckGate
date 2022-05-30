@@ -194,7 +194,7 @@ fun TransactionItem(item: Basket) {
                 }
                 Box(Modifier.weight(1f), contentAlignment = Alignment.BottomEnd) {
                     Text(
-                        text = "₦ ${item.amount}",
+                        text = "$ ${item.amount}",
                         style = MaterialTheme.typography.body1.copy(
                             fontSize = 16.sp,
                             color = MaterialTheme.colors.primary
